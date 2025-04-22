@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { User, Session } from '@supabase/supabase-js';
+import { User } from '@supabase/supabase-js';
 
 interface SessionInfo {
   created_at?: string;
@@ -16,7 +16,6 @@ interface SessionInfo {
 export function UserDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [sessionInfo, setSessionInfo] = useState<SessionInfo>({});
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +27,6 @@ export function UserDashboard() {
         
         if (userData?.user && sessionData?.session) {
           setUser(userData.user);
-          setSession(sessionData.session);
           
           // Extract relevant session info using type assertion to handle potentially missing properties
           const rawSession = sessionData.session as unknown as { created_at?: string; expires_at?: number };
