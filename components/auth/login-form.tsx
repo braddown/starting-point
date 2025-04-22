@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from 'sonner';
 
 export function LoginForm() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,8 +29,9 @@ export function LoginForm() {
       // Navigate to dashboard on success
       window.location.href = '/dashboard';
       
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred during login');
+    } catch (error: Error | unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred during login';
+      toast.error(errorMessage);
       setLoading(false);
     }
   };
@@ -74,7 +73,7 @@ export function LoginForm() {
       </CardContent>
       <CardFooter className="flex flex-col">
         <div className="text-sm text-gray-500 mb-4">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/register" className="text-primary underline underline-offset-4">
             Create Account
           </Link>

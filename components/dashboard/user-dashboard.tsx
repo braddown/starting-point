@@ -6,11 +6,18 @@ import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { User, Session } from '@supabase/supabase-js';
+
+interface SessionInfo {
+  created_at?: string;
+  expires_at?: number;
+}
 
 export function UserDashboard() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [session, setSession] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [sessionInfo, setSessionInfo] = useState<SessionInfo>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,6 +29,13 @@ export function UserDashboard() {
         if (userData?.user && sessionData?.session) {
           setUser(userData.user);
           setSession(sessionData.session);
+          
+          // Extract relevant session info using type assertion to handle potentially missing properties
+          const rawSession = sessionData.session as unknown as { created_at?: string; expires_at?: number };
+          setSessionInfo({
+            created_at: rawSession.created_at,
+            expires_at: rawSession.expires_at
+          });
         } else {
           router.push('/login');
         }
@@ -42,8 +56,9 @@ export function UserDashboard() {
       toast.success('Signed out successfully');
       router.push('/login');
       router.refresh();
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred during sign out');
+    } catch (error: Error | unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred during sign out';
+      toast.error(errorMessage);
     }
   };
 
@@ -51,7 +66,7 @@ export function UserDashboard() {
     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
   }
 
-  const formatDate = (timestamp: string) => {
+  const formatDate = (timestamp?: string | number) => {
     if (!timestamp) return 'N/A';
     return new Date(timestamp).toLocaleString();
   };
@@ -91,11 +106,11 @@ export function UserDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <h4 className="font-medium">Session Created</h4>
-                <p className="text-sm text-gray-500">{formatDate(session?.created_at)}</p>
+                <p className="text-sm text-gray-500">{formatDate(sessionInfo.created_at)}</p>
               </div>
               <div>
                 <h4 className="font-medium">Session Expires</h4>
-                <p className="text-sm text-gray-500">{formatDate(session?.expires_at)}</p>
+                <p className="text-sm text-gray-500">{formatDate(sessionInfo.expires_at)}</p>
               </div>
               <div>
                 <h4 className="font-medium">Provider</h4>

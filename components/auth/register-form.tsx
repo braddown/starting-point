@@ -40,8 +40,9 @@ export function RegisterForm() {
       
       toast.success('Registration successful! Check your email for confirmation link');
       router.push('/login');
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred during registration');
+    } catch (error: Error | unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred during registration';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
